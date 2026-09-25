@@ -1,0 +1,23 @@
+:host {
+    display: block;
+    min-width: 0;
+    container-type: inline-size;
+}
+
+.finder-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+}
+
+.finder-layout > * {
+    min-width: 0;
+}
+
+/* Respond to the allocated page region, including narrow record-page panels. */
+@container (min-width: 60rem) {
+    .finder-layout {
+        grid-template-columns: minmax(16rem, 21rem) minmax(0, 1fr);
+    }
+}

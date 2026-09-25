@@ -1,0 +1,149 @@
+<template>
+    <lightning-card>
+        <div class="results-toolbar slds-p-horizontal_medium slds-p-bottom_small">
+            <h2 class="slds-text-heading_medium slds-font-weight_bold" aria-live="polite">{resultsTitle}</h2>
+            <div class="toolbar-controls">
+                <lightning-input
+                    class="results-search"
+                    type="search"
+                    label="Search part numbers or manual descriptions"
+                    variant="label-hidden"
+                    placeholder="Search part number or manual description..."
+                    maxlength="200"
+                    value={searchTerm}
+                    onchange={handleSearch}>
+                </lightning-input>
+                <lightning-combobox
+                    class="sort-control"
+                    label="Sort results"
+                    variant="label-hidden"
+                    value={sortBy}
+                    options={sortOptions}
+                    onchange={handleSort}>
+                </lightning-combobox>
+                <lightning-button-icon
+                    icon-name="utility:download"
+                    alternative-text="Export current page"
+                    title="Export current page"
+                    disabled={pageIsEmpty}
+                    onclick={downloadResults}>
+                </lightning-button-icon>
+            </div>
+        </div>
+
+        <div lwc:if={isLoading} class="slds-p-around_medium" role="status">
+            Loading matching parts…
+        </div>
+        <div lwc:elseif={errorMessage} class="slds-p-around_medium" role="alert">
+            <p class="slds-text-color_error">{errorMessage}</p>
+            <lightning-button variant="base" label="Retry search" onclick={retrySearch}></lightning-button>
+        </div>
+        <p lwc:elseif={hasSearched} class="slds-p-horizontal_medium slds-p-bottom_small slds-text-color_weak">
+            Matched by manufacturer and model. Serial number and part type are not applied yet.
+        </p>
+
+        <p lwc:if={catalogWarning} class="slds-p-horizontal_medium slds-p-bottom_small slds-text-color_weak" role="status">{catalogWarning}</p>
+
+        <section lwc:if={hasSelections} class="selection-bar slds-box slds-theme_shade slds-m-horizontal_medium slds-m-bottom_small" aria-label="Selected products">
+            <div class="selection-summary slds-border_right slds-p-right_medium" role="status">
+                <lightning-icon icon-name="utility:check" size="small" alternative-text="Selected products"></lightning-icon>
+                <span class="slds-text-heading_small slds-font-weight_bold">{selectedLabel}</span>
+            </div>
+            <!-- Presentation only: opportunity and request workflows will be connected separately. -->
+            <lightning-button lwc:if={hasActiveSelections} class="selection-opportunity" variant="neutral" icon-name="utility:case" label={opportunitySelectionLabel}></lightning-button>
+            <lightning-button lwc:if={hasRequestSelections} class="selection-request" variant="neutral" icon-name="utility:description" label={requestSelectionLabel}></lightning-button>
+            <lightning-button class="selection-clear slds-border_left slds-p-left_medium" variant="base" icon-name="utility:close" label="Clear selection" onclick={clearSelection}></lightning-button>
+            <p lwc:if={hasReviewSelections} class="selection-review slds-text-body_small slds-text-color_weak" role="status">{reviewSelectionLabel}</p>
+        </section>
+
+        <div class="table-container slds-scrollable_x" tabindex="0" role="region" aria-label="Parts results">
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                <caption class="slds-assistive-text">Current page of matching parts</caption>
+                <thead>
+                    <tr>
+                        <th scope="col" class="slds-cell-shrink">
+                            <lightning-input type="checkbox" label="Select all parts on this page" variant="label-hidden" checked={allPageSelected} disabled={pageIsEmpty} onchange={handleSelectPage}></lightning-input>
+                        </th>
+                        <th scope="col">Part</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Category</th>
+                        <!-- <th scope="col">Match</th> -->
+                        <th scope="col">Product status</th>
+                        <th scope="col">OEM list price</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template lwc:if={showEmptyMessage}>
+                        <tr>
+                            <td colspan="100" class="slds-text-align_center slds-p-vertical_medium">{emptyMessage}</td>
+                        </tr>
+                    </template>
+                    <template for:each={rows} for:item="part">
+                        <tr key={part.id} class="slds-hint-parent">
+                            <td class="slds-cell-shrink">
+                                <lightning-input type="checkbox" label={part.selectionLabel} variant="label-hidden" data-id={part.id} checked={part.selected} onchange={handleSelection}></lightning-input>
+                            </td>
+                            <td data-label="Part">
+                                <div class="part-cell">
+                                    <div class="thumbnail slds-box slds-box_xx-small">
+                                        <img lwc:if={part.imageUrl} src={part.imageUrl} alt={part.imageAlt} class="part-image" data-id={part.id} data-url={part.imageUrl} onerror={handleImageError} />
+                                        <lightning-icon lwc:else icon-name="utility:image" size="small" alternative-text="No part image"></lightning-icon>
+                                    </div>
+                                    <div class="slds-align_center">
+                                        <lightning-button variant="base" label={part.partNumber} data-id={part.id} data-action={part.action} onclick={handlePartAction}></lightning-button>
+                                        <p class="slds-text-body_small slds-text-color_weak">{part.manufacturer}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td data-label="Type">{part.partType}</td>
+                            <td data-label="Category" class="slds-cell-wrap">
+                                {part.category}
+                                <!-- <lightning-formatted-rich-text lwc:if={part.descriptionIsRichText} value={part.description} disable-linkify></lightning-formatted-rich-text>
+                                <lightning-formatted-text lwc:else value={part.description}></lightning-formatted-text> -->
+                            </td>
+                            <!-- <td data-label="Type">{part.partType}</td> -->
+                            <!-- <td data-label="Match">
+                                <div class="match-cell">
+                                    <lightning-icon icon-name={part.compIcon} size="xx-small" variant={part.matchVariant} alternative-text={part.compatibility}></lightning-icon>
+                                    <span>{part.compatibility}</span>
+                                </div>
+                            </td> -->
+                            <td data-label="Product status">
+                                <lightning-badge class={part.statusClass} label={part.status} icon-name={part.statusIcon}></lightning-badge>
+                            </td>
+                            <td data-label="OEM list price">{part.listPrice}</td>
+                            <td data-label="Action">
+                                <div class="row-actions">
+                                    <lightning-button label={part.actionLabel} variant="neutral" data-id={part.id} data-action={part.action} onclick={handlePartAction}></lightning-button>
+                                    <!-- <lightning-button-menu icon-name="utility:threedots_vertical" variant="bare" alternative-text="More part actions" menu-alignment="right" data-id={part.id} onselect={handlePartAction}>
+                                        <lightning-menu-item value="details" label="View details"></lightning-menu-item>
+                                        <lightning-menu-item value="add" label="Add to cart"></lightning-menu-item>
+                                    </lightning-button-menu> -->
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <!-- <template lwc:if={showEmptyMessage}>
+                <p class="slds-p-around_large slds-text-align_center slds-text-color_weak" role="status">{emptyMessage}</p>
+            </template> -->
+        </div>
+
+        <div class="results-footer slds-p-horizontal_medium slds-p-top_medium slds-border_top">
+            <div class="page-size-control">
+                <span class="slds-text-color_weak">Rows per page:</span>
+                <lightning-combobox label="Rows per page" variant="label-hidden" value={pageSize} options={rowOptions} onchange={handlePageSize}></lightning-combobox>
+            </div>
+            <p class="slds-text-color_weak" aria-live="polite">{firstRow}–{lastRow} of {totalResults}</p>
+            <nav class="pagination" aria-label="Results pages">
+                <lightning-button-icon icon-name="utility:chevronleft" alternative-text="Previous page" disabled={isFirstPage} onclick={previousPage}></lightning-button-icon>
+                <template for:each={pages} for:item="page">
+                    <lightning-button class="pagination-button" key={page.value} label={page.label} title={page.title} variant={page.variant} aria-current={page.ariaCurrent} data-page={page.value} disabled={isLoading} onclick={goToPage}></lightning-button>
+                </template>
+                <lightning-button-icon icon-name="utility:chevronright" alternative-text="Next page" disabled={isLastPage} onclick={nextPage}></lightning-button-icon>
+            </nav>
+        </div>
+    </lightning-card>
+</template>

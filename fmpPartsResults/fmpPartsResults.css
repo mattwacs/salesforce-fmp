@@ -1,0 +1,160 @@
+:host {
+    display: block;
+    min-width: 0;
+}
+
+/* Layout only; SLDS and Lightning components own all colors and surfaces. */
+.results-toolbar,
+.results-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.toolbar-controls,
+.filter-pills,
+.page-size-control,
+.pagination,
+.row-actions,
+.match-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.part-cell {
+    display: flex;
+    /* align-items: center; */
+    gap: 0.5rem;
+}
+
+.toolbar-controls {
+    flex: 1 1 36rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.results-search {
+    flex: 1 1 15rem;
+    min-width: 12rem;
+    max-width: 26rem;
+}
+
+.sort-control {
+    width: 10rem;
+}
+
+.filter-pills {
+    flex-wrap: wrap;
+}
+
+.table-container {
+    min-height: 22rem;
+    padding: 1rem;
+}
+
+.part-cell {
+    gap: 0.75rem;
+    padding-block: 0.5rem;
+}
+
+/* .thumbnail {
+    flex: 0 0 2.75rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    overflow: hidden;
+    padding: 0;
+}
+
+.part-image {
+    max-width: none;
+    max-height: 100%;
+    object-fit: cover;
+    object-position: center;
+} */
+
+.thumbnail {
+    flex: 0 0 2.75rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    overflow: hidden;
+    padding: 0;
+    
+    /* Add flexbox to center the fallback icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.part-image {
+    /* Set explicit width and height so object-fit knows what bounds to cover */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.row-actions,
+.match-cell {
+    white-space: nowrap;
+}
+
+.page-size-control lightning-combobox {
+    width: 5rem;
+}
+
+.pagination {
+    flex-wrap: wrap;
+}
+
+.pagination-button {
+    border-radius: 2px;
+}
+
+.selection-bar,
+.selection-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.selection-bar {
+    flex-wrap: wrap;
+}
+
+.selection-summary {
+    white-space: nowrap;
+}
+
+.selection-review {
+    flex-basis: 100%;
+}
+
+@media (max-width: 48rem) {
+    .toolbar-controls {
+        justify-content: flex-start;
+    }
+
+    .results-search {
+        flex-basis: 100%;
+        max-width: none;
+    }
+}
+
+/* Round the Top-Left corner of the first header cell */
+.slds-table thead th:first-child {
+    border-top-left-radius: 0.25rem;
+}
+
+/* Round the Top-Right corner of the last header cell */
+.slds-table thead th:last-child {
+    border-top-right-radius: 0.25rem;
+}
+
+/* Optional: Ensures the table itself respects the radius if it has a border */
+.slds-table {
+    border-radius: 0.25rem;
+    border-collapse: separate; /* Required for border-radius to work on tables */
+}

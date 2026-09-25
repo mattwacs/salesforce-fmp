@@ -1,0 +1,86 @@
+<template>
+    <lightning-card title="Machine criteria">
+        <div class="criteria-body slds-p-horizontal_medium slds-p-bottom_medium">
+            <template lwc:if={isLoadingManufacturers}>
+                <p class="slds-text-color_weak" role="status">Loading manufacturers...</p>
+            </template>
+            <template lwc:elseif={manufacturerError}>
+                <div role="alert" class="slds-text-color_error">
+                    <p>{manufacturerError}</p>
+                    <lightning-button label="Retry Manufacturers" variant="base" onclick={handleRetry}></lightning-button>
+                </div>
+            </template>
+            <template lwc:elseif={hasNoManufacturers}>
+                <p class="slds-text-color_weak" role="status">No manufacturers available.</p>
+            </template>
+
+            <c-searchable-combobox
+                name="manufacturer"
+                label="Manufacturer"
+                required
+                placeholder="Search manufacturers..."
+                disabled={isLoadingManufacturers}
+                options={manufacturerOptions}
+                value={selectedManufacturer}
+                selected-label={selectedManufacturerLabel}
+                reset-key={manufacturerResetKey}
+                onchange={handleCustomInputChange}>
+            </c-searchable-combobox>
+
+            <div>
+                <c-searchable-combobox
+                    name="model"
+                    label="Model"
+                    required
+                    placeholder="Search models..."
+                    disabled={isModelDisabled}
+                    empty-message="No models available for this manufacturer."
+                    options={modelOptions}
+                    value={selectedModel}
+                    selected-label={selectedModelLabel}
+                    reset-key={modelResetKey}
+                    onchange={handleCustomInputChange}>
+                </c-searchable-combobox>
+                <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                    Manufacturer and model are required.
+                </p>
+            </div>
+
+            <div>
+                <lightning-input
+                    type="text"
+                    name="serialNumber"
+                    label="Serial number (Optional)"
+                    value={serialNumber}
+                    aria-describedby="serial-help"
+                    onchange={handleInputChange}>
+                </lightning-input>
+                <p id="serial-help" class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                    Serial number filtering is not applied yet.
+                </p>
+            </div>
+
+            <lightning-combobox
+                name="partType"
+                label="Part type"
+                value={selectedType}
+                options={typeOptions}
+                onchange={handleInputChange}>
+            </lightning-combobox>
+
+            <div class="criteria-actions">
+                <lightning-button
+                    variant="brand"
+                    label="Find parts"
+                    icon-name="utility:search"
+                    stretch
+                    disabled={isSearchDisabled}
+                    onclick={handleSearch}>
+                </lightning-button>
+                <div class="slds-text-align_center">
+                    <lightning-button variant="base" label="Reset" onclick={handleClear}></lightning-button>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+</template>

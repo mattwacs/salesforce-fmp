@@ -1,0 +1,11 @@
+<template>
+    <header class="slds-m-bottom_medium">
+        <h1 class="slds-text-heading_large slds-font-weight_bold">Find My Part</h1>
+        <p class="slds-text-color_weak slds-m-top_x-small">Find the right parts for your equipment quickly and easily.</p>
+    </header>
+    <c-fmp-part-finder
+        context="standalone"
+        onsearch={handleFinderEvent}
+        onpartaction={handleFinderEvent}>
+    </c-fmp-part-finder>
+</template>

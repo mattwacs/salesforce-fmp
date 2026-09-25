@@ -1,0 +1,18 @@
+:host {
+    display: block;
+    min-width: 0;
+}
+
+/* Layout only: Salesforce supplies surfaces, borders, text and control colors. */
+.criteria-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.criteria-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+}

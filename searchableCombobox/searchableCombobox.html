@@ -1,0 +1,53 @@
+<template>
+    <div class="slds-form-element">
+        <div class="slds-form-element__control">
+            <div class="slds-combobox_container">
+                <div class={dropdownClasses} aria-expanded={isDropdownOpen} aria-disabled={disabled} aria-required={required} aria-haspopup="listbox" role="combobox">
+                    
+                    <!-- The Search Input -->
+                    <div class="slds-combobox__form-element" role="none">
+                        <lightning-input 
+                            lwc:ref="searchInput"
+                            type="search" 
+                            label={label}
+                            disabled={disabled}
+                            required={required}
+                            value={searchTerm} 
+                            placeholder={placeholder}
+                            onchange={handleSearch} 
+                            onfocus={openDropdown} 
+                            onblur={closeDropdown}>
+                        </lightning-input>
+                    </div>
+                    
+                    <!-- The Filtered Dropdown List -->
+                    <div lwc:if={isDropdownOpen} role="listbox" class="slds-dropdown slds-dropdown_fluid" style="max-height: 200px; overflow-y: auto;">
+                        <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                            <template for:each={filteredOptions} for:item="option">
+                                <li key={option.value} role="presentation" class="slds-listbox__item" onmousedown={handleSelect} data-value={option.value} data-label={option.label}>
+                                    <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                                        <span class="slds-media__body">
+                                            <span class="slds-truncate">{option.label}</span>
+                                        </span>
+                                    </div>
+                                </li>
+                            </template>
+                            
+                            <!-- Empty State if search yields no results -->
+                            <template lwc:if={isListEmpty}>
+                                <li role="presentation" class="slds-listbox__item">
+                                    <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                                        <span class="slds-media__body slds-text-color_weak slds-text-align_center">
+                                            {emptyStateMessage}
+                                        </span>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
